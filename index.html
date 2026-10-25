@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Mountain Climbing Competition Manager">
+  <title>歩荷大会マネージャー</title>
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="歩荷大会">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+
+  <!-- Custom Confirmation Modal -->
+  <div id="confirmation-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 id="modal-title">確認</h3>
+      <p id="modal-message">よろしいですか？</p>
+      <div class="flex" style="justify-content: center; margin-top: 1.5rem;">
+        <button id="modal-confirm" class="btn btn-danger">削除</button>
+        <button id="modal-cancel" class="btn">キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <a href="#" class="nav-brand" onclick="app.router('participants')">歩荷大会</a>
+    <div class="nav-links">
+      <a href="#" class="nav-item active" data-target="participants"
+        onclick="app.handleNavClick(event, 'participants')">大会・参加者情報</a>
+      <a href="#" class="nav-item" data-target="records" onclick="app.handleNavClick(event, 'records')">記録</a>
+      <a href="#" class="nav-item" data-target="results" onclick="app.handleNavClick(event, 'results')">成績</a>
+      <a href="#" class="nav-item" data-target="handicap" onclick="app.handleNavClick(event, 'handicap')">ハンデ</a>
+    </div>
+  </nav>
+
+  <main class="app-container">
+
+    <!-- PARTICIPANTS PAGE -->
+    <section id="participants" class="view">
+      <div class="card">
+        <h2>大会・参加者情報</h2>
+        <div class="form-group">
+          <label>大会名</label>
+          <input type="text" id="event-name" placeholder="第10回 登山大会">
+        </div>
+        <div class="form-group">
+          <label>開催日</label>
+          <input type="text" id="event-date" placeholder="YYYY-MM-DD">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>参加者リスト</h2>
+        <div class="table-container">
+          <table id="participant-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">参加</th>
+                <th style="width: 185px;">氏名</th>
+                <th style="width: 65px;">性別</th>
+                <th style="width: 140px;">生年月日</th>
+                <th style="width: 30px;">年齢</th>
+                <th style="width: 95px;">区分</th>
+                <th style="width: 70px;">入部年</th>
+                <th style="width: 70px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Excel-style rows will be dynamic -->
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- 【修正】参加者リストのボタン並び：左に追加、右寄りにファイル読み込み・保存 -->
+        <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          <button id="btn-add-participant-row" class="btn btn-primary" style="width:auto;">+ 追加</button>
+          
+          <!-- 右に押し出すクッション空間 -->
+          <div style="flex:1; min-width: 10px;"></div>
+          
+          <input type="file" id="input-import-json" accept=".json" style="display: none;">
+          <button id="btn-import-participants" class="btn btn-secondary" style="width:auto;">スマホから名簿を読み込む</button>
+          <button id="btn-sync-participants" class="btn btn-accent" style="width:auto;">この名簿をファイルに保存する</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECORDS PAGE (Excel-Style) -->
+    <section id="records" class="view">
+      <div class="card col-12" style="position:relative; min-height: 80vh; display:flex; flex-direction:column;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2>記録</h2>
+        </div>
+        <p style="font-size:0.9rem; color:var(--text-light);">※ 内容を変更すると自動保存されます</p>
+
+        <div class="table-container" style="flex:1;">
+          <table id="records-table">
+            <thead>
+              <tr>
+                <th style="min-width:185px;">参加者</th>
+                <th style="min-width:20px;">重量(kg)</th>
+                <th style="min-width:160px;">開始時刻</th>
+                <th style="min-width:160px;">終了時刻</th>
+                <th style="min-width:100px;">手動修正</th>
+                <th style="min-width:80px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="records-tbody">
+              <!-- Data Rows (Inputs) will be here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 【修正】記録ページのボタン並び：元のロジック通り、すべてを削除ボタンを右寄りに配置 -->
+        <div style="margin-top:1rem; display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+          <button id="btn-add-record-row" class="btn btn-primary" style="width:auto;">＋ 追加</button>
+          <button id="btn-summarize" class="btn btn-accent" style="width:auto;">集計</button>
+
+          <!-- 右に押し出すクッション空間 -->
+          <div style="flex:1; min-width: 10px;"></div>
+
+          <button id="btn-delete-all-records" class="btn btn-danger" style="width:auto;">すべてを削除</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS PAGE -->
+    <section id="results" class="view">
+      <div class="card card-header-info">
+        <h2 id="res-event-name">大会名未設定</h2>
+        <p id="res-event-date" style="color: var(--text-light)">日付未設定</p>
+      </div>
+
+      <div class="card">
+        <h3>フィルタ・ソート</h3>
+        <div class="form-group">
+          <label>ソート基準</label>
+          <div class="flex">
+            <label class="flex" style="font-weight:normal"><input type="radio" name="sort-order" value="handicap"
+                checked> ハンデあり</label>
+            <label class="flex" style="font-weight:normal"><input type="radio" name="sort-order" value="raw">
+              ハンデなし</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>表示対象</label>
+          <div class="flex">
+            <label class="flex" style="font-weight:normal"><input type="checkbox" id="filter-student" checked>
+              学生</label>
+            <label class="flex" style="font-weight:normal"><input type="checkbox" id="filter-ob" checked> OB</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>成績表</h3>
+        <div class="table-container">
+          <table id="results-table">
+            <thead>
+              <tr>
+                <th>順位</th>
+                <th>氏名</th>
+                <th>区分</th>
+                <th>性別</th>
+                <th>年齢</th>
+                <th>重量(kg)</th>
+                <th>ハンデあり</th>
+                <th>ハンデなし</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- HANDICAP PAGE -->
+    <section id="handicap" class="view">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h2>ハンデ一覧</h2>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <label style="margin:0;">Zoom:</label>
+            <button class="btn" id="btn-zoom-out" style="padding:0.2rem 0.5rem;">-</button>
+            <button class="btn" id="btn-zoom-in" style="padding:0.2rem 0.5rem;">+</button>
+          </div>
+        </div>
+
+        <div class="flex flex-col" style="display:flex; flex-direction:column; gap: 2rem;">
+          <div>
+            <div>
+              <h3 class="zoomable-header">性別ハンデ</h3>
+              <div id="handicap-gender-table-container" class="table-container">
+                <table id="handicap-gender-table" class="zoomable-text">
+                  <thead>
+                    <tr>
+                      <th>性別</th>
+                      <th>ハンデ</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Age -->
+          <div>
+            <h3 class="zoomable-header">年齢ハンデ</h3>
+            <div class="table-container">
+              <table id="handicap-age-table" class="zoomable-text">
+                <thead>
+                  <tr>
+                    <th>年齢</th>
+                    <th>ハンデ</th>
+                    <th style="border-left: 2px solid var(--border);">年齢</th>
+                    <th>ハンデ</th>
+                    <th style="border-left: 2px solid var(--border);">年齢</th>
+                    <th>ハンデ</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Weight -->
+          <div>
+            <h3 class="zoomable-header">重量ハンデ</h3>
+            <div class="table-container">
+              <table id="handicap-weight-table" class="zoomable-text">
+                <thead>
+                  <tr>
+                    <th>重量</th>
+                    <th>ハンデ</th>
+                    <th style="border-left: 2px solid var(--border);">重量</th>
+                    <th>ハンデ</th>
+                    <th style="border-left: 2px solid var(--border);">重量</th>
+                    <th>ハンデ</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>成績計算について</h2>
+        <pre id="handicap-code-block"></pre>
+      </div>
+
+      <!-- Secret Section -->
+      <div id="handicap-secret-section" class="card secret-card hidden">
+        <h3 style="color:var(--accent)">高度なハンデ設定 (秘密)</h3>
+        <form id="handicap-settings-form">
+          <div class="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>男性ハンデ (秒)</label>
+              <input type="number" id="h-male" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label>女性ハンデ (秒)</label>
+              <input type="number" id="h-female" placeholder="-600">
+            </div>
+          </div>
+
+          <div class="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-top:1rem;">
+            <div class="form-group">
+              <label>年齢ハンデ初期値 (秒)</label>
+              <input type="number" id="h-age-base" placeholder="0">
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 1rem;">
+              <div class="form-group">
+                <label>重量ハンデ初期値 (秒)</label>
+                <input type="number" id="h-weight-base" placeholder="0">
+              </div>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:1rem;">
+            <label>重量ハンデ開始点 (kg)</label>
+            <input type="number" id="h-weight-start" placeholder="0">
+          </div>
+
+          <div class="secret-spacer"></div>
+
+          <div class="flex" style="gap:2rem; margin-top:1rem;">
+            <div style="flex:1">
+              <label>年齢スロット (5枠)</label>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>年齢閾値（歳）</th>
+                      <th>秒</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="text" class="h-age-val" placeholder="25"></td>
+                      <td><input type="number" class="h-age-sec" placeholder="30"></td>
+                    </tr>
+                    <tr>
+                      <td><input type="text" class="h-age-val"></td>
+                      <td><input type="number" class="h-age-sec"></td>
+                    </tr>
+                    <tr>
+                      <td><input type="text" class="h-age-val"></td>
+                      <td><input type="number" class="h-age-sec"></td>
+                    </tr>
+                    <tr>
+                      <td><input type="text" class="h-age-val"></td>
+                      <td><input type="number" class="h-age-sec"></td>
+                    </tr>
+                    <tr>
+                      <td><input type="text" class="h-age-val"></td>
+                      <td><input type="number" class="h-age-sec"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="secret-spacer"></div>
+
+          <div class="flex" style="gap:2rem; margin-top:1rem;">
+            <div style="flex:1">
+              <label>重量スロット (5枠)</label>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>重量閾値（kg）</th>
+                      <th>秒</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><input type="number" class="h-weight-val" placeholder="0"></td>
+                      <td><input type="text" class="h-weight-sec" placeholder="60"></td>
+                    </tr>
+                    <tr>
+                      <td><input type="number" class="h-weight-val"></td>
+                      <td><input type="text" class="h-weight-sec"></td>
+                    </tr>
+                    <tr>
+                      <td><input type="number" class="h-weight-val"></td>
+                      <td><input type="text" class="h-weight-sec"></td>
+                    </tr>
+                    <tr>
+                      <td><input type="number" class="h-weight-val"></td>
+                      <td><input type="text" class="h-weight-sec"></td>
+                    </tr>
+                    <tr>
+                      <td><input type="number" class="h-weight-val"></td>
+                      <td><input type="text" class="h-weight-sec"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:1rem; display:flex; align-items:center; gap:1rem;">
+            <button type="submit" class="btn btn-accent">ハンデ設定を保存</button>
+            <span id="save-success-msg"
+              style="color:var(--success); font-weight:bold; opacity:0; transition:opacity 0.3s;">更新しました。</span>
+          </div>
+
+          <div
+            style="margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
+            <label style="color:var(--danger); font-size:0.8rem;">※ システムのリセット（注意！）</label>
+            <button type="button" id="btn-reset-system" class="btn btn-danger"
+              style="width:fit-content;">全データを消去してリセットする</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/app.js" type="module"></script>
+</body>
+
+</html>

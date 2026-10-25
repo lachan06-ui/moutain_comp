@@ -1,0 +1,442 @@
+:root {
+  --primary: #0f172a;
+  --primary-light: #1e293b;
+  --accent: #f59e0b;
+  --accent-text: #ffffff;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text: #334155;
+  --text-light: #64748b;
+  --border: #e2e8f0;
+  --danger: #ef4444;
+  --success: #22c55e;
+
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --radius: 12px;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --header-height: 60px;
+
+  --zoom-level: 1;
+  /* For Handicap Page */
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  padding-top: var(--header-height);
+}
+
+/* Typography */
+h1,
+h2,
+h3 {
+  margin: 0 0 0.5em;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Layout */
+.app-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: calc(100vh - var(--header-height));
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navigation - Sticky Top Left */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-height);
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  z-index: 1000;
+  overflow-x: auto;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.nav-brand {
+  font-weight: 800;
+  margin-right: 1.5rem;
+  font-size: 1.1rem;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-item {
+  color: #94a3b8;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.nav-item.active {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Views */
+.view {
+  display: none;
+  padding-top: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.view.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cards & Forms */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 0.4rem;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 1rem;
+  background: #fdfdfd;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+/* Handicap Table Specifics */
+/* Centered, Fit-Content for Gender Table Container */
+#handicap-gender-table-container {
+  margin: 0 auto;
+  width: 33.33%;
+  max-width: 100%;
+  min-width: 200px;
+  /* Prevent being too thin */
+}
+
+@media (max-width: 600px) {
+  #handicap-gender-table-container {
+    width: 100%;
+  }
+}
+
+.secret-spacer {
+  margin-top: 1.5rem;
+  display: block;
+}
+
+/* Compact Cells & Alignment */
+#handicap-gender-table {
+  border: 1px solid var(--border);
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+#handicap-gender-table th,
+#handicap-gender-table td,
+#handicap-age-table th,
+#handicap-age-table td,
+#handicap-weight-table th,
+#handicap-weight-table td {
+  padding: 0.25rem 0.5rem;
+  font-size: calc(0.9rem * var(--zoom-level));
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+#handicap-gender-table th,
+#handicap-gender-table td {
+  width: 50% !important;
+}
+
+/* Vertical Borders for Multi-Col Tables (Age/Weight) */
+/* Columns are: 1,2 | 3,4 | 5,6 */
+/* We want border-left on col 3 and 5 */
+#handicap-age-table td:nth-child(3),
+#handicap-age-table td:nth-child(5),
+#handicap-weight-table td:nth-child(3),
+#handicap-weight-table td:nth-child(5) {
+  border-left: 2px solid var(--border);
+}
+
+
+/* Records Table Weight Column Fix */
+#records-table th:nth-child(2),
+#records-table td:nth-child(2) {
+  width: 100px;
+  /* Force fixed width */
+  max-width: 100px;
+}
+
+#records-table td:nth-child(2) input,
+#participant-table td input,
+#participant-table td select {
+  width: 100%;
+}
+
+#participant-table {
+  width: 100%;
+  min-width: 650px;
+  /* Minimum width to keep columns readable */
+}
+
+/* Specific alignments for participant table */
+#participant-table td {
+  padding: 8px 4px;
+  /* Slightly more vertical padding */
+}
+
+.excel-input {
+  border: 1px solid transparent;
+  /* Invisible border mostly */
+  background: transparent;
+  padding: 0.4rem 0.6rem;
+  /* Increase horizontal padding */
+  border-radius: 4px;
+}
+
+.excel-input:focus {
+  background: white;
+  border-color: var(--accent);
+}
+
+.excel-row:hover {
+  background-color: #f8fafc;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+  font-size: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 600px) {
+  .btn {
+    width: auto;
+  }
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: #000;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+/* Tables */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-top: 1rem;
+  /* Remove scrollbar hiding and overflow hidden to allow native scrolling */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  text-align: center;
+}
+
+/* Secret Section Table Inputs Mobile Fix */
+.secret-card input[type="number"] {
+  min-width: 0;
+  width: 100%;
+  padding: 0.4rem;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  padding: 0.875rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  /* Prevent line wrapping */
+}
+
+th {
+  background: var(--primary-light);
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Specific utilities */
+.hidden {
+  display: none !important;
+}
+
+.nav-item.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+
+.secret-card {
+  border: 2px dashed var(--accent);
+  background: #fffbeb;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.9rem;
+}
+
+/* Custom Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: var(--radius);
+  max-width: 90%;
+  width: 400px;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  text-align: center;
+}
+
+/* Zoom features */
+.zoomable-text {
+  font-size: calc(1rem * var(--zoom-level));
+}
+
+.zoomable-header {
+  font-size: calc(1.2rem * var(--zoom-level));
+}
