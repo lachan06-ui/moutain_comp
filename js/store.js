@@ -6,42 +6,86 @@ export const store = {
     records: [],
     settings: {},
 
-    async init() {
-        await db.open();
-        await this.refresh();
+    
+async init() {
+    await db.open();
+    await this.refresh();
 
-        // Initial Load from JSON if empty
-        if (this.participants.length === 0) {
-            try {
-                const res = await fetch('participants.json');
-                if (res.ok) {
-                    const data = await res.json();
-                    const cols = data.columns;
-                    const rows = data.rows;
+    // 既存の参加者データがある場合は何もしない
+    if (this.participants.length > 0) return;
 
-                    const idxName = cols.indexOf('name');
-                    const idxGender = cols.indexOf('gender');
-                    const idxDob = cols.indexOf('dob');
-                    const idxCat = cols.indexOf('category');
-                    const idxYear = cols.indexOf('joinedYear');
+    let loadedFromJson = false;
 
-                    for (const row of rows) {
+    // まず participants.json を読み込む
+    try {
+        const res = await fetch('participants.json');
+
+        if (res.ok) {
+            const data = await res.json();
+
+            if (Array.isArray(data.columns) && Array.isArray(data.rows)) {
+                const idxName = data.columns.indexOf('name');
+                const idxGender = data.columns.indexOf('gender');
+                const idxDob = data.columns.indexOf('dob');
+                const idxCat = data.columns.indexOf('category');
+                const idxYear = data.columns.indexOf('joinedYear');
+
+                if (idxName >= 0) {
+                    for (const row of data.rows) {
                         await db.add('participants', {
-                            isAttending: false,
-                            name: row[idxName],
-                            gender: row[idxGender],
-                            dob: row[idxDob],
-                            isStudent: row[idxCat] === 'student',
-                            joinedYear: Number(row[idxYear]) || 2024
+                            isAttending: true,
+                            name: row[idxName] || '',
+                            gender: row[idxGender] || 'male',
+                            dob: row[idxDob] || '',
+                            isStudent: idxCat >= 0 && row[idxCat] === 'student',
+                            joinedYear: Number(row[idxYear]) || new Date().getFullYear()
                         });
                     }
-                    await this.refresh();
+                    loadedFromJson = data.rows.length > 0;
                 }
-            } catch (err) {
-                console.warn('participants.json not found or could not be loaded.');
             }
         }
-    },
+    } catch (err) {
+        console.warn('participants.json not found.');
+    }
+
+    // JSONがなければダミー参加者を登録
+    if (!loadedFromJson) {
+        const dummyParticipants = [
+            {
+                isAttending: true,
+                name: '山田 太郎',
+                gender: 'male',
+                dob: '1995-05-10',
+                isStudent: false,
+                joinedYear: 2015
+            },
+            {
+                isAttending: true,
+                name: '佐藤 花子',
+                gender: 'female',
+                dob: '2002-08-20',
+                isStudent: true,
+                joinedYear: 2021
+            },
+            {
+                isAttending: true,
+                name: '鈴木 一郎',
+                gender: 'male',
+                dob: '1985-03-15',
+                isStudent: false,
+                joinedYear: 2005
+            }
+        ];
+
+        for (const participant of dummyParticipants) {
+            await db.add('participants', participant);
+        }
+    }
+
+    await this.refresh();
+},
+
 
     async refresh() {
         this.participants = await db.getAll('participants');

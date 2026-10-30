@@ -18,38 +18,6 @@ export function initResultsView() {
         // Get Base Data
         let results = store.getCalculatedResults();
 
-        if (results.length === 0) {
-            results = [
-                {
-                    participant: {
-                        name: '山田 太郎',
-                        isStudent: false,
-                        gender: 'male',
-                        age: 31
-                    },
-                    weight: 20,
-                    handicapTime: 1800,
-                    baseTime: 2100,
-                    handicapTimeStr: '0:30:00',
-                    baseTimeStr: '0:35:00'
-                },
-                {
-                    participant: {
-                        name: '佐藤 花子',
-                        isStudent: true,
-                        gender: 'female',
-                        age: 23,
-                        joinedYear: 2021
-                    },
-                    weight: 15,
-                    handicapTime: 1900,
-                    baseTime: 2200,
-                    handicapTimeStr: '0:31:40',
-                    baseTimeStr: '0:36:40'
-                }
-            ];
-        }
-
         // 1. Filter
         const showStudent = filterStudent.checked;
         const showOB = filterOB.checked;
