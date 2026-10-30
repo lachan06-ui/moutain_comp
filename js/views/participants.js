@@ -195,7 +195,37 @@ export function initParticipantsView() {
     function renderTable() {
         if (!tableBody) return;
         tableBody.innerHTML = '';
-        const participants = store.participants;
+        const participants = store.participants.length > 0
+            ? store.participants
+            : [
+                {
+                    id: 'dummy-1',
+                    isAttending: true,
+                    name: '山田 太郎',
+                    gender: 'male',
+                    dob: '1995-05-10',
+                    isStudent: false,
+                    joinedYear: 2015
+                },
+                {
+                    id: 'dummy-2',
+                    isAttending: true,
+                    name: '佐藤 花子',
+                    gender: 'female',
+                    dob: '2002-08-20',
+                    isStudent: true,
+                    joinedYear: 2021
+                },
+                {
+                    id: 'dummy-3',
+                    isAttending: false,
+                    name: '鈴木 一郎',
+                    gender: 'male',
+                    dob: '1985-03-15',
+                    isStudent: false,
+                    joinedYear: 2005
+                }
+            ];
 
         // Sort by Age (descending)
         const sorted = [...participants].sort((a, b) => {
